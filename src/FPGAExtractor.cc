@@ -443,22 +443,23 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
                 
                 Mat temp;
                 copyMakeBorder(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),temp,0,0,0,0,BORDER_CONSTANT,Scalar(0,0,0));
-		copyMakeBorder(temp,temp,0,0,2,0,BORDER_CONSTANT,Scalar(0,0,0));
-		printf("temp cols %d max-ini %d\n",temp.cols,(int)(maxX-iniX));
-		printf("At (0,0) %2x\n",temp.at<uchar>(0,0));
-//                printf("col,row %x %x\n",temp.cols,temp.rows);
-		int lastcols = temp.cols%16;
-                if(lastcols != 0){
-                    copyMakeBorder(temp,temp,0,0,0,16-lastcols,BORDER_CONSTANT,Scalar(0,0,0));
+		copyMakeBorder(temp,temp,2,0,0,0,BORDER_CONSTANT,Scalar(0,0,0));
+
+		int lastrows = temp.rows%16;
+                if(lastrows != 0){
+                    copyMakeBorder(temp,temp,0,16-lastrows,0,0,BORDER_CONSTANT,Scalar(0,0,0));
                 }
-		if(temp.cols < 0x30){
-		    copyMakeBorder(temp,temp,0,0,0,0x30-temp.cols,BORDER_CONSTANT,Scalar(0,0,0));
+		if(temp.rows < 0x30){
+		    copyMakeBorder(temp,temp,0,0x30-temp.rows,0,0,BORDER_CONSTANT,Scalar(0,0,0));
 //		    printf("At (0,%d) %2x\n",temp.cols-1,temp.at<uchar>(0,temp.cols-1));
+		}
+		if(temp.cols %2 !=0){
+		    copyMakeBorder(temp,temp,0,0,0,1,BORDER_CONSTANT,Scalar(0,0,0));
 		}
                 unsigned char* mat = (unsigned char*)malloc(temp.cols*temp.rows);
                 FPGACvtMat(temp,mat);
 //		printf("col %d row %d\n",temp.cols,temp.rows);
-                FPGAExtract(mat,temp.cols,temp.rows,batch++);
+                FPGAExtract(mat,temp.rows,temp.cols,batch++);
                 free(mat);
             }
         }

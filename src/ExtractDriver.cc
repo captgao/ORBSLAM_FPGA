@@ -66,7 +66,7 @@ void FPGAExtract(unsigned char* mat, unsigned int height, unsigned int width, un
 //    *imgsize = 0x00280026;
     *batchreg = batch;
     *toReadaddr = RD_PADDR;
-//    printf("readlen %x, imgsize %x\n",*readlen,*imgsize);
+    printf("readlen %x, imgsize %x\n",*readlen,*imgsize);
  //   printf("0x%x 0x%x %x",*toWriteaddr,*toReadaddr,RD_PADDR);
 
     memcpy(toWrite,mat,height*width);
@@ -141,10 +141,10 @@ void FPGAResult(vector<KeyPoint>& _keypoints, OutputArray& _descriptors, int lev
 
 void FPGACvtMat(cv::Mat cvmat, unsigned char* mat){
     unsigned char* orgmat = mat;
-    for(int i = 0; i < cvmat.cols; i+=8){
-        for(int j = 0;j < cvmat.rows; j++){
+    for(int i = 0; i < cvmat.rows; i+=8){
+        for(int j = 0;j < cvmat.cols; j++){
             for(int k=0;k<8;k++){
-                *mat = cvmat.at<uchar>(j,k+i);
+                *mat = cvmat.at<uchar>(k+i,j);
                 mat++;
             }
         }
