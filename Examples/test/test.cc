@@ -22,7 +22,7 @@ int main(int argc, char **argv)
     
     for(auto it : mvKeys){
         out << it.pt.x << "," << it.pt.y << endl;
-        out << it.angle << " " << it.response << " " << it.octave << " " << it.class_id <<endl;
+        out << it.angle << " " << it.response << " " << it.size << " " << it.class_id <<endl;
         out << endl;
     }
     out.close();

@@ -417,9 +417,11 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
 
         const int nCols = width/W;
         const int nRows = height/W;
+//        const int wCell = 40;
+//        const int hCell = 42;
         const int wCell = ceil(width/nCols);
         const int hCell = ceil(height/nRows);
-
+//	printf("level %d wcell %d hcell %d\n",level,wCell,hCell);
         for(int i=0; i<nRows; i++)
         {
             const float iniY =minBorderY+i*hCell;
@@ -440,18 +442,27 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
                     maxX = maxBorderX;
                 
                 Mat temp;
-                copyMakeBorder(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),temp,0,0,2,0,BORDER_CONSTANT,Scalar(0,0,0));
-                int lastcols = temp.cols%8;
+                copyMakeBorder(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),temp,0,0,0,0,BORDER_CONSTANT,Scalar(0,0,0));
+		copyMakeBorder(temp,temp,0,0,2,0,BORDER_CONSTANT,Scalar(0,0,0));
+		printf("temp cols %d max-ini %d\n",temp.cols,(int)(maxX-iniX));
+		printf("At (0,0) %2x\n",temp.at<uchar>(0,0));
+//                printf("col,row %x %x\n",temp.cols,temp.rows);
+		int lastcols = temp.cols%16;
                 if(lastcols != 0){
-                    copyMakeBorder(temp,temp,0,0,0,8-lastcols,BORDER_CONSTANT,Scalar(0,0,0));
+                    copyMakeBorder(temp,temp,0,0,0,16-lastcols,BORDER_CONSTANT,Scalar(0,0,0));
                 }
-                unsigned char* mat = (unsigned char*)malloc(temp.cols*temp.rows);;
+		if(temp.cols < 0x30){
+		    copyMakeBorder(temp,temp,0,0,0,0x30-temp.cols,BORDER_CONSTANT,Scalar(0,0,0));
+//		    printf("At (0,%d) %2x\n",temp.cols-1,temp.at<uchar>(0,temp.cols-1));
+		}
+                unsigned char* mat = (unsigned char*)malloc(temp.cols*temp.rows);
                 FPGACvtMat(temp,mat);
+//		printf("col %d row %d\n",temp.cols,temp.rows);
                 FPGAExtract(mat,temp.cols,temp.rows,batch++);
                 free(mat);
             }
         }
-        FPGAResult(_keypoints, _descriptors);
+        FPGAResult(_keypoints, _descriptors,level);
     }
 }
 
