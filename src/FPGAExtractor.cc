@@ -464,7 +464,6 @@ void ORBextractor::operator()(InputArray _image, InputArray _mask, vector<KeyPoi
 
 void ORBextractor::ComputePyramid(cv::Mat image)
 {
-    static int test_flag = 0;
     string imgpath = "/mnt/e/test/img";
     for (int level = 0; level < nlevels; ++level)
     {
