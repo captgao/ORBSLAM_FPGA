@@ -60,7 +60,8 @@ void FPGAExtract(unsigned char *mat, unsigned int height, unsigned int width, un
 
     *toWriteaddr = WR_PADDR;
     *toReadaddr = RD_PADDR;
-    *imgsize = (height << 16) + width;
+//    *imgsize = (height << 16) + width;
+    *imgsize = 0x02000160;
     *batchreg = batch;
     *toReadaddr = RD_PADDR;
     printf("imgsize %x\n", *imgsize);
