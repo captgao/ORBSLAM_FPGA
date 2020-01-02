@@ -453,9 +453,9 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
 		    copyMakeBorder(temp,temp,0,0x30-temp.rows,0,0,BORDER_CONSTANT,Scalar(0,0,0));
 //		    printf("At (0,%d) %2x\n",temp.cols-1,temp.at<uchar>(0,temp.cols-1));
 		}
-		if(temp.cols %2 !=0){
+/*		if(temp.cols %2 !=0){
 		    copyMakeBorder(temp,temp,0,0,0,1,BORDER_CONSTANT,Scalar(0,0,0));
-		}
+		}*/
                 unsigned char* mat = (unsigned char*)malloc(temp.cols*temp.rows);
                 FPGACvtMat(temp,mat);
 //		printf("col %d row %d\n",temp.cols,temp.rows);

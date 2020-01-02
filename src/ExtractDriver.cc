@@ -125,7 +125,7 @@ void FPGAResult(vector<KeyPoint>& _keypoints, OutputArray& _descriptors, int lev
             }
 		printf("pixid %d\n",orbstart->pixid);
             float angle = fastAtan2((float)sumrow,(float)sumcol);
-            _keypoints.push_back(KeyPoint((float)orbstart->pixid,(float)level,(float)orbstart->batch,angle,orbstart->fast));
+            _keypoints.push_back(KeyPoint((float)orbstart->pixid,(float)level,(float)orbstart->batch,angle,(float)orbstart->fast));
             if(fp == NULL) fp = fopen("/root/desc.txt","w");
 	    struct FPGA_Descriptor * curd = descstart + i;
 	    for(int i = 0;i < 32; i++){
