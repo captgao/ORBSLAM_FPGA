@@ -72,8 +72,6 @@ const int PATCH_SIZE = 31;
 const int HALF_PATCH_SIZE = 15;
 const int EDGE_THRESHOLD = 19;
 
-
-
 void ORBextractor::operator()(InputArray _image, InputArray _mask, vector<KeyPoint> &_keypoints,
                               OutputArray _descriptors)
 {
@@ -88,6 +86,20 @@ void ORBextractor::operator()(InputArray _image, InputArray _mask, vector<KeyPoi
     ComputePyramid(image);
     for (int level = 0; level < nlevels; ++level)
     {
+        Mat temp = mvImagePyramid[level];
+        copyMakeBorder(temp, temp, 2, 0, 0, 0, BORDER_CONSTANT, Scalar(0, 0, 0));
+        int lastrows = temp.rows % 8;
+        int origrows = temp.rows;
+        if (lastrows != 0)
+        {
+            copyMakeBorder(temp, temp, 0, 8 - lastrows, 0, 0, BORDER_CONSTANT, Scalar(0, 0, 0));
+        }
+        unsigned char *mat = (unsigned char *)malloc(temp.cols * temp.rows);
+        FPGACvtMat(temp, mat);
+        FPGAExtract(mat, origrows, temp.cols,0);
+        free(mat);
+        FPGAResult(_keypoints, _descriptors, level);
+        /*
         int batch = 0;
         const int minBorderX = EDGE_THRESHOLD - 3;
         const int minBorderY = minBorderX;
@@ -147,6 +159,7 @@ void ORBextractor::operator()(InputArray _image, InputArray _mask, vector<KeyPoi
         }
         FPGAResult(_keypoints, _descriptors, level);
         BaseXY.clear();
+        */
     }
 }
 
@@ -176,7 +189,6 @@ void ORBextractor::ComputePyramid(cv::Mat image)
         }
     }
 }
-
 
 ORBextractor::ORBextractor(int _nfeatures, float _scaleFactor, int _nlevels,
                            int _iniThFAST, int _minThFAST) : nfeatures(_nfeatures), scaleFactor(_scaleFactor), nlevels(_nlevels),
