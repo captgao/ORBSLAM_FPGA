@@ -43,7 +43,7 @@ void FPGAExtract(unsigned char *mat, unsigned int height, unsigned int width, un
                                                    MAP_SHARED, dev_fd, WR_PADDR);
     unsigned char *toRead = (unsigned char *)mmap(NULL, 409600, PROT_READ | PROT_WRITE,
                                                   MAP_SHARED, dev_fd, RD_PADDR);
-    void *map_base = (unsigned char *)mmap(NULL, 4096UL, PROT_READ | PROT_WRITE,
+    unsigned char *map_base = (unsigned char *)mmap(NULL, 4096UL, PROT_READ | PROT_WRITE,
                                            MAP_SHARED, dev_fd, EXTR_REG_BASE);
     unsigned int *toReadaddr, *readlen, *toWriteaddr, *imgsize, *reset, *finish, *ctrl, *batchreg;
     unsigned int *debug, *deviceid;
