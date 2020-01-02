@@ -45,9 +45,8 @@ void FPGAExtract(unsigned char *mat, unsigned int height, unsigned int width, un
                                                   MAP_SHARED, dev_fd, RD_PADDR);
     unsigned char *map_base = (unsigned char *)mmap(NULL, 4096UL, PROT_READ | PROT_WRITE,
                                            MAP_SHARED, dev_fd, EXTR_REG_BASE);
-    unsigned int *toReadaddr, *readlen, *toWriteaddr, *imgsize, *reset, *finish, *ctrl, *batchreg;
+    unsigned int *toReadaddr, *toWriteaddr, *imgsize, *reset, *finish, *ctrl, *batchreg;
     toWriteaddr = (unsigned int *)map_base;
-    readlen = (unsigned int *)(map_base + 1 * 4);
     toReadaddr = (unsigned int *)(map_base + 2 * 4);
     imgsize = (unsigned int *)(map_base + 3 * 4);
     batchreg = (unsigned int *)(map_base + 4 * 4);
@@ -61,11 +60,10 @@ void FPGAExtract(unsigned char *mat, unsigned int height, unsigned int width, un
 
     *toWriteaddr = WR_PADDR;
     *toReadaddr = RD_PADDR;
-    *readlen = (width << 16) + width * 2;
     *imgsize = (height << 16) + width;
     *batchreg = batch;
     *toReadaddr = RD_PADDR;
-    printf("readlen %x, imgsize %x\n", *readlen, *imgsize);
+    printf("imgsize %x\n", *imgsize);
 
     memcpy(toWrite, mat, height * width);
     syscall(399, (void *)toWrite, 409600);
