@@ -13,13 +13,11 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    cv::Mat im = cv::imread("/root/test.png",cv::IMREAD_GRAYSCALE);
     ofstream out("/root/out.txt");
     std::vector<cv::KeyPoint> mvKeys;
     cv::Mat mDescriptors;
-    ORB_SLAM2::ORBextractor* extractor = new ORB_SLAM2::ORBextractor(1000,1.2,8,20,7);
-    (*extractor)(im,cv::Mat(),mvKeys,mDescriptors);
-    
+    ORB_SLAM2::FPGAExtract(0,0,0,0);
+    ORB_SLAM2::FPGAResult(mvKeys,mDescriptors,0);
     for(auto it : mvKeys){
         out << it.pt.x << "," << it.pt.y << endl;
         out << it.angle << " " << it.response << " " << it.size << " " << it.class_id <<endl;
