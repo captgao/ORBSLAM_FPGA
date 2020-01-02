@@ -34,7 +34,7 @@ struct FPGA_Descriptor
     unsigned char d[32];
 };
 
-void FPGAExtract(unsigned char *mat, unsigned int height, unsigned int width, unsigned int batch)
+void FPGAExtract(unsigned char *mat, unsigned int height, unsigned int width)
 {
     //    printf("FPGAExtract start \n");
     int dev_fd;
@@ -45,11 +45,10 @@ void FPGAExtract(unsigned char *mat, unsigned int height, unsigned int width, un
                                                   MAP_SHARED, dev_fd, RD_PADDR);
     unsigned char *map_base = (unsigned char *)mmap(NULL, 4096UL, PROT_READ | PROT_WRITE,
                                            MAP_SHARED, dev_fd, EXTR_REG_BASE);
-    unsigned int *toReadaddr, *toWriteaddr, *imgsize, *reset, *finish, *ctrl, *batchreg;
+    unsigned int *toReadaddr, *toWriteaddr, *imgsize, *reset, *finish, *ctrl;
     toWriteaddr = (unsigned int *)map_base;
     toReadaddr = (unsigned int *)(map_base + 2 * 4);
     imgsize = (unsigned int *)(map_base + 3 * 4);
-    batchreg = (unsigned int *)(map_base + 4 * 4);
 
     reset = (unsigned int *)(map_base + 13 * 4);
     finish = (unsigned int *)(map_base + 14 * 4);
@@ -60,9 +59,7 @@ void FPGAExtract(unsigned char *mat, unsigned int height, unsigned int width, un
 
     *toWriteaddr = WR_PADDR;
     *toReadaddr = RD_PADDR;
-//    *imgsize = (height << 16) + width;
-    *imgsize = 0x028001E0;
-    *batchreg = batch;
+    *imgsize = (height << 16) + width;
     *toReadaddr = RD_PADDR;
     printf("imgsize %x\n", *imgsize);
 
@@ -83,11 +80,10 @@ void FPGAExtract(unsigned char *mat, unsigned int height, unsigned int width, un
     //    printf("FPGAExtract end\n");
 }
 
-void FPGAResult(vector<KeyPoint> &_keypoints, OutputArray &_descriptors, int level)
+void FPGAResult(vector<KeyPoint> &_keypoints, OutputArray &_descriptors, int level, int cols)
 {
     //    printf("FPGAResult start\n");
     static FILE *fp;
-    printf("size %d\n", sizeof(struct FPGA_ORBResult));
     int dev_fd;
     dev_fd = open("/dev/mem", O_RDWR | O_SYNC);
     unsigned char *map_base = (unsigned char *)mmap(NULL, 4096UL, PROT_READ | PROT_WRITE,
@@ -105,7 +101,6 @@ void FPGAResult(vector<KeyPoint> &_keypoints, OutputArray &_descriptors, int lev
         struct FPGA_ORBResult *orbstart = orb + i;
         if (orbstart->fast != 0)
         {
-            printf("get! %d\n", orbstart->batch);
             int sumrow = orbstart->sumrow24;
             if (sumrow & 0x00800000)
             {
@@ -126,7 +121,10 @@ void FPGAResult(vector<KeyPoint> &_keypoints, OutputArray &_descriptors, int lev
                 sumcol = sumcol & 0x00ffffff;
             }
             float angle = fastAtan2((float)sumrow, (float)sumcol);
-            _keypoints.push_back(KeyPoint((float)orbstart->pixid, (float)level, (float)orbstart->batch, angle, orbstart->fast));
+            int colnum,rownum;
+            rownum = orbstart->pixid / cols - 2;
+            colnum = orbstart->pixid % cols;
+            _keypoints.push_back(KeyPoint((float)colnum,(float)rownum, (float)level, angle, orbstart->fast));
             if (fp == NULL)
                 fp = fopen("/root/desc.txt", "w");
             struct FPGA_Descriptor *curd = descstart + i;

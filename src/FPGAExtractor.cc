@@ -89,77 +89,12 @@ void ORBextractor::operator()(InputArray _image, InputArray _mask, vector<KeyPoi
         Mat temp = mvImagePyramid[level];
         copyMakeBorder(temp, temp, 2, 0, 0, 0, BORDER_CONSTANT, Scalar(0, 0, 0));
         int lastrows = temp.rows % 8;
-        int origrows = temp.rows;
-        if (lastrows != 0)
-        {
-            copyMakeBorder(temp, temp, 0, 8 - lastrows, 0, 0, BORDER_CONSTANT, Scalar(0, 0, 0));
-        }
+        temp = temp.rowRange(0,temp.rows-lastrows);
         unsigned char *mat = (unsigned char *)malloc(temp.cols * temp.rows);
         FPGACvtMat(temp, mat);
-        FPGAExtract(mat, origrows, temp.cols,0);
+        FPGAExtract(mat, temp.rows, temp.cols,0);
         free(mat);
-        FPGAResult(_keypoints, _descriptors, level);
-        /*
-        int batch = 0;
-        const int minBorderX = EDGE_THRESHOLD - 3;
-        const int minBorderY = minBorderX;
-        const int maxBorderX = mvImagePyramid[level].cols - EDGE_THRESHOLD + 3;
-        const int maxBorderY = mvImagePyramid[level].rows - EDGE_THRESHOLD + 3;
-
-        const float width = (maxBorderX - minBorderX);
-        const float height = (maxBorderY - minBorderY);
-
-        const int nCols = width / W;
-        const int nRows = height / W;
-        //        const int wCell = 40;
-        //        const int hCell = 42;
-        const int wCell = ceil(width / nCols);
-        const int hCell = ceil(height / nRows);
-        //	printf("level %d wcell %d hcell %d\n",level,wCell,hCell);
-        for (int i = 0; i < nRows; i++)
-        {
-            const float iniY = minBorderY + i * hCell;
-            float maxY = iniY + hCell + 6;
-
-            if (iniY >= maxBorderY - 3)
-                continue;
-            if (maxY > maxBorderY)
-                maxY = maxBorderY;
-
-            for (int j = 0; j < nCols; j++)
-            {
-                const float iniX = minBorderX + j * wCell;
-                float maxX = iniX + wCell + 6;
-                if (iniX >= maxBorderX - 6)
-                    continue;
-                if (maxX > maxBorderX)
-                    maxX = maxBorderX;
-
-                Mat temp;
-                copyMakeBorder(mvImagePyramid[level].rowRange(iniY, maxY).colRange(iniX, maxX), temp, 0, 0, 0, 0, BORDER_CONSTANT, Scalar(0, 0, 0));
-                copyMakeBorder(temp, temp, 2, 0, 0, 0, BORDER_CONSTANT, Scalar(0, 0, 0));
-
-                int lastrows = temp.rows % 8;
-                int origrows = temp.rows;
-                if (lastrows != 0)
-                {
-                    copyMakeBorder(temp, temp, 0, 8 - lastrows, 0, 0, BORDER_CONSTANT, Scalar(0, 0, 0));
-                }
-                if (temp.rows < 0x30)
-                {
-                    copyMakeBorder(temp, temp, 0, 0x30 - temp.rows, 0, 0, BORDER_CONSTANT, Scalar(0, 0, 0));
-                    origrows = 0x30;
-                }
-                unsigned char *mat = (unsigned char *)malloc(temp.cols * temp.rows);
-                FPGACvtMat(temp, mat);
-                FPGAExtract(mat, origrows, temp.cols, batch++);
-                free(mat);
-                BaseXY.push_back(Point(iniX,iniY));
-            }
-        }
-        FPGAResult(_keypoints, _descriptors, level);
-        BaseXY.clear();
-        */
+        FPGAResult(_keypoints, _descriptors, level,temp.cols);
     }
 }
 
