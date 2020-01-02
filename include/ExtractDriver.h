@@ -4,7 +4,7 @@
 #include <vector>
 #include <opencv/cv.h>
 namespace ORB_SLAM2{
-void FPGAExtract(unsigned char* mat, unsigned int height, unsigned int width, unsigned int batch);
+void FPGAExtract(unsigned char* mat, unsigned int height, unsigned int width);
 
 void FPGAResult(std::vector<cv::KeyPoint>& _keypoints,cv::OutputArray& _descriptors,int level, int cols);
 

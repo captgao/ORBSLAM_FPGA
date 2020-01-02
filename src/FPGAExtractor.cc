@@ -92,7 +92,7 @@ void ORBextractor::operator()(InputArray _image, InputArray _mask, vector<KeyPoi
         temp = temp.rowRange(0,temp.rows-lastrows);
         unsigned char *mat = (unsigned char *)malloc(temp.cols * temp.rows);
         FPGACvtMat(temp, mat);
-        FPGAExtract(mat, temp.rows, temp.cols,0);
+        FPGAExtract(mat, temp.rows, temp.cols);
         free(mat);
         FPGAResult(_keypoints, _descriptors, level,temp.cols);
     }
