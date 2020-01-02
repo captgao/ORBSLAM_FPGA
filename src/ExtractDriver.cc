@@ -124,6 +124,7 @@ void FPGAResult(vector<KeyPoint> &_keypoints, OutputArray &_descriptors, int lev
             int colnum,rownum;
             rownum = orbstart->pixid / (cols-36) + 18;
             colnum = orbstart->pixid % (cols-36) + 18;
+            
             _keypoints.push_back(KeyPoint((float)colnum,(float)rownum, (float)level, angle, orbstart->fast));
             if (fp == NULL)
                 fp = fopen("/root/desc.txt", "w");
