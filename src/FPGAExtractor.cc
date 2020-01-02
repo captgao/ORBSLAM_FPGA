@@ -136,6 +136,7 @@ void ORBextractor::operator()(InputArray _image, InputArray _mask, vector<KeyPoi
                 if (temp.rows < 0x30)
                 {
                     copyMakeBorder(temp, temp, 0, 0x30 - temp.rows, 0, 0, BORDER_CONSTANT, Scalar(0, 0, 0));
+                    origrows = 30;
                 }
                 unsigned char *mat = (unsigned char *)malloc(temp.cols * temp.rows);
                 FPGACvtMat(temp, mat);
