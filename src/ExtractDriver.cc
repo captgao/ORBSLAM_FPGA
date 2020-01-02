@@ -46,18 +46,15 @@ void FPGAExtract(unsigned char *mat, unsigned int height, unsigned int width, un
     unsigned char *map_base = (unsigned char *)mmap(NULL, 4096UL, PROT_READ | PROT_WRITE,
                                            MAP_SHARED, dev_fd, EXTR_REG_BASE);
     unsigned int *toReadaddr, *readlen, *toWriteaddr, *imgsize, *reset, *finish, *ctrl, *batchreg;
-    unsigned int *debug, *deviceid;
     toWriteaddr = (unsigned int *)map_base;
     readlen = (unsigned int *)(map_base + 1 * 4);
     toReadaddr = (unsigned int *)(map_base + 2 * 4);
     imgsize = (unsigned int *)(map_base + 3 * 4);
     batchreg = (unsigned int *)(map_base + 4 * 4);
-    debug = (unsigned int *)(map_base + 11 * 4);
-    deviceid = (unsigned int *)(map_base + 10 * 4);
+
     reset = (unsigned int *)(map_base + 13 * 4);
     finish = (unsigned int *)(map_base + 14 * 4);
     ctrl = (unsigned int *)(map_base + 15 * 4);
-    //    printf("device identity %d %x\n",*deviceid, *debug);
     *reset = 1;
     usleep(1);
     *reset = 0;
@@ -66,22 +63,17 @@ void FPGAExtract(unsigned char *mat, unsigned int height, unsigned int width, un
     *toReadaddr = RD_PADDR;
     *readlen = (width << 16) + width * 2;
     *imgsize = (height << 16) + width;
-    //    *readlen = 0x00280050;
-    //    *imgsize = 0x00400028;
     *batchreg = batch;
     *toReadaddr = RD_PADDR;
     printf("readlen %x, imgsize %x\n", *readlen, *imgsize);
-    //   printf("0x%x 0x%x %x",*toWriteaddr,*toReadaddr,RD_PADDR);
 
     memcpy(toWrite, mat, height * width);
     syscall(399, (void *)toWrite, 409600);
     syscall(400, WR_PADDR, 409600);
     syscall(401, WR_PADDR, 409600);
     *ctrl = 1;
-    //   printf("ctrl %d\n\n",*ctrl);
     while (*ctrl != 0)
     {
-        //printf("%x\n",*ctrl);
         usleep(1);
     };
     if (dev_fd)
@@ -99,15 +91,13 @@ void FPGAResult(vector<KeyPoint> &_keypoints, OutputArray &_descriptors, int lev
     printf("size %d\n", sizeof(struct FPGA_ORBResult));
     int dev_fd;
     dev_fd = open("/dev/mem", O_RDWR | O_SYNC);
-    void *map_base = (unsigned char *)mmap(NULL, 4096UL, PROT_READ | PROT_WRITE,
+    unsigned char *map_base = (unsigned char *)mmap(NULL, 4096UL, PROT_READ | PROT_WRITE,
                                            MAP_SHARED, dev_fd, EXTR_REG_BASE);
     int *heap_outstart = (int *)(map_base + 20);
     *heap_outstart = 1;
-    // printf("start wait\n");
     while (*heap_outstart != 0)
     {
-        printf("%d\n", *heap_outstart);
-        //	usleep(1);
+        	usleep(1);
     }
     struct FPGA_ORBResult *orb = (struct FPGA_ORBResult *)mmap(NULL, 1048576, PROT_READ, MAP_SHARED, dev_fd, ORB_BASE);
     struct FPGA_Descriptor *descstart = (struct FPGA_Descriptor *)mmap(NULL, 1048576, PROT_READ, MAP_SHARED, dev_fd, DESC_BASE);
@@ -136,7 +126,6 @@ void FPGAResult(vector<KeyPoint> &_keypoints, OutputArray &_descriptors, int lev
             {
                 sumcol = sumcol & 0x00ffffff;
             }
-            printf("pixid %d\n", orbstart->pixid);
             float angle = fastAtan2((float)sumrow, (float)sumcol);
             _keypoints.push_back(KeyPoint((float)orbstart->pixid, (float)level, (float)orbstart->batch, angle, orbstart->fast));
             if (fp == NULL)
@@ -149,7 +138,7 @@ void FPGAResult(vector<KeyPoint> &_keypoints, OutputArray &_descriptors, int lev
             fprintf(fp, "\n");
         }
     }
-    printf("FPGAResult end\n");
+//    printf("FPGAResult end\n");
     munmap(orb, 1048576);
     munmap(descstart, 1048576);
 }
@@ -168,11 +157,6 @@ void FPGACvtMat(cv::Mat cvmat, unsigned char *mat)
             }
         }
     }
-    printf("\n\n");
-    for (int i = 0; i < 10; i++)
-    {
-        printf("%2x ", *(orgmat + i));
-    }
-    printf("\n\n");
+
 }
 } // namespace ORB_SLAM2
